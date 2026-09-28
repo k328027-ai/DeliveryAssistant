@@ -31,7 +31,7 @@ class ActiveOrdersAdapter(
         val tvGroupBadge: TextView = itemView.findViewById(R.id.tvGroupBadge)
         val tvPlatform: TextView = itemView.findViewById(R.id.tvCardPlatform)
         val tvTimer: TextView = itemView.findViewById(R.id.tvCardTimer)
-        val tvStore: TextView = itemView.findViewById(R.id.tvCardStore)
+        val tvCardStore: TextView = itemView.findViewById(R.id.tvCardStore)
         val tvOvertime: TextView = itemView.findViewById(R.id.tvCardOvertime)
         val tvTotalPay: TextView = itemView.findViewById(R.id.tvCardTotalPay)
         val btnComplete: Button = itemView.findViewById(R.id.btnCompleteCard)
@@ -69,7 +69,7 @@ class ActiveOrdersAdapter(
         // 店家名稱
         if (item.storeName.isNotEmpty()) {
             holder.tvCardStore.visibility = View.VISIBLE
-            holder.tvCardStore.text = "店家：${item.storeName}"
+            holder.tvCardStore.text = "店家：" + item.storeName
         } else {
             holder.tvCardStore.visibility = View.GONE
         }
@@ -85,7 +85,8 @@ class ActiveOrdersAdapter(
         val totalPay = item.estimatedAmount + overtimePay
 
         if (overtime > 0) {
-            holder.tvOvertime.text = String.format("已超時！補貼：+\$%.1f", overtimePay)
+            val formattedPay = String.format("%.1f", overtimePay)
+            holder.tvOvertime.text = "已超時！補貼：+$" + formattedPay
             holder.tvOvertime.setTextColor(Color.parseColor("#DC2626"))
         } else {
             val remainSeconds = item.baseTimeSeconds - elapsedSeconds
@@ -95,7 +96,8 @@ class ActiveOrdersAdapter(
             holder.tvOvertime.setTextColor(Color.parseColor("#15803D"))
         }
 
-        holder.tvTotalPay.text = String.format("目前金額: \$%.1f", totalPay)
+        val formattedTotal = String.format("%.1f", totalPay)
+        holder.tvTotalPay.text = "目前金額: $" + formattedTotal
 
         holder.btnComplete.setOnClickListener {
             onCompleteClick(item)
