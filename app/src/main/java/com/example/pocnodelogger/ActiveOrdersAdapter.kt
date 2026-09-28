@@ -85,7 +85,7 @@ class ActiveOrdersAdapter(
         val totalPay = item.estimatedAmount + overtimePay
 
         if (overtime > 0) {
-            holder.tvOvertime.text = String.format("已超時！補貼：+$%.1f", overtimePay)
+            holder.tvOvertime.text = String.format("已超時！補貼：+\$%.1f", overtimePay)
             holder.tvOvertime.setTextColor(Color.parseColor("#DC2626"))
         } else {
             val remainSeconds = item.baseTimeSeconds - elapsedSeconds
@@ -95,7 +95,7 @@ class ActiveOrdersAdapter(
             holder.tvOvertime.setTextColor(Color.parseColor("#15803D"))
         }
 
-        holder.tvTotalPay.text = String.format("目前金額: $%.1f", totalPay)
+        holder.tvTotalPay.text = String.format("目前金額: \$%.1f", totalPay)
 
         holder.btnComplete.setOnClickListener {
             onCompleteClick(item)
