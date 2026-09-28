@@ -15,14 +15,15 @@ import androidx.room.RoomDatabase
 data class OrderEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val platform: String,             // "Foodpanda", "Uber Eats", "其他"
-    val estimatedAmount: Double,     // 輸入的預估金額 (例: 45.0)
+    val estimatedAmount: Double,     // 輸入的預估金額
     val baseTimeSeconds: Long,       // 金額反推的法定時間底線 (秒)
     val startTimeMs: Long,           // 開始計時時間戳 (毫秒)
     val endTimeMs: Long,             // 完成送達時間戳 (毫秒)
     val durationSeconds: Long,       // 實際總耗時 (秒)
-    val overtimeSeconds: Long,       // 實際超時秒數 (若未超時則為 0)
-    val overtimePay: Double,         // 超時實時加算金額 (元)
-    val totalPay: Double             // 最終總收入 (預估金額 + 超時補貼)
+    val overtimeSeconds: Long,       // 實際超時秒數
+    val overtimePay: Double,         // 超時補貼金額
+    val totalPay: Double,            // 最終總收入
+    val completionReason: String = "正常配送" // 結束原因 ("正常配送", "不想接單", "實收", "其他")
 )
 
 // 2. 定義資料庫操作 API (DAO)
@@ -45,7 +46,7 @@ interface OrderDao {
 }
 
 // 3. 單例資料庫物件
-@Database(entities = [OrderEntity::class], version = 1, exportSchema = false)
+@Database(entities = [OrderEntity::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun orderDao(): OrderDao
 
@@ -59,7 +60,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "delivery_assistant_db"
-                ).build()
+                )
+                .fallbackToDestructiveMigration() // 自動更新資料庫結構
+                .build()
                 INSTANCE = instance
                 instance
             }
