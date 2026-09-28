@@ -2,27 +2,28 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5"
+    android:background="#F3F4F6"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="12dp">
 
-    <!-- 頂部接單輸入卡片 -->
+    <!-- 接單輸入區卡片 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#FFFFFF"
-        android:elevation="2dp"
+        android:elevation="3dp"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="14dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="新增計時訂單"
-            android:textColor="#333333"
-            android:textSize="18sp"
+            android:text="➕ 新增配送訂單"
+            android:textColor="#111827"
+            android:textSize="17sp"
             android:textStyle="bold" />
 
+        <!-- 平台選擇 RadioGroup -->
         <RadioGroup
             android:id="@+id/rgPlatform"
             android:layout_width="match_parent"
@@ -36,27 +37,33 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:checked="true"
-                android:text="Foodpanda" />
+                android:text="Panda"
+                android:textColor="#D81B60"
+                android:textStyle="bold" />
 
             <RadioButton
                 android:id="@+id/rbUberEats"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Uber Eats" />
+                android:text="Uber"
+                android:textColor="#06C167"
+                android:textStyle="bold" />
 
             <RadioButton
                 android:id="@+id/rbOther"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="其他" />
+                android:text="其他"
+                android:textColor="#4B5563" />
         </RadioGroup>
 
+        <!-- 金額與夾單模式 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="6dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -65,40 +72,99 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:hint="輸入預估金額 (預設 45)"
+                android:hint="總金額 ($)"
                 android:inputType="numberDecimal"
                 android:text="45"
-                android:textSize="18sp" />
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <RadioGroup
+                android:id="@+id/rgSplitCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/rbSplit1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="1單" />
+
+                <RadioButton
+                    android:id="@+id/rbSplit2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2夾" />
+
+                <RadioButton
+                    android:id="@+id/rbSplit3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="3夾" />
+            </RadioGroup>
+        </LinearLayout>
+
+        <!-- 非必填項目：店家與單號 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/etStoreName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="店家名稱 (選填)"
+                android:textSize="14sp" />
+
+            <EditText
+                android:id="@+id/etOrderNo"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:hint="單號/取單碼 (選填)"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvBaseTimeHint"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="法定時間底線：11 分 00 秒"
+                android:textColor="#4B5563"
+                android:textSize="13sp" />
 
             <Button
                 android:id="@+id/btnAddOrder"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
-                android:layout_marginStart="8dp"
-                android:backgroundTint="#1976D2"
+                android:backgroundTint="#2563EB"
                 android:text="+ 開始接單"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold" />
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/tvBaseTimeHint"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="法定時間底線：11 分 00 秒"
-            android:textColor="#666666"
-            android:textSize="13sp" />
     </LinearLayout>
 
-    <!-- 進行中的訂單卡片清單 (支援多單同時計時) -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="6dp"
         android:text="進行中的配送訂單"
-        android:textColor="#333333"
+        android:textColor="#111827"
         android:textSize="16sp"
         android:textStyle="bold" />
 
