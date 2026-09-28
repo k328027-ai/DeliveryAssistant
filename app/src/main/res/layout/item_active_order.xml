@@ -1,16 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/cardLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
+    android:layout_marginBottom="10dp"
     android:background="#FFFFFF"
-    android:elevation="3dp"
+    android:elevation="2dp"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="14dp">
 
+    <!-- 頂部：夾單群組標示 (若是夾單才顯示) -->
+    <TextView
+        android:id="@+id/tvGroupBadge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#E5E7EB"
+        android:paddingHorizontal="6dp"
+        android:paddingVertical="2dp"
+        android:text="👥 夾單群組"
+        android:textColor="#374151"
+        android:textSize="11sp"
+        android:visibility="gone" />
+
+    <!-- 平台、單號與計時器 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <TextView
@@ -18,8 +35,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Foodpanda ($45)"
-            android:textColor="#1976D2"
+            android:text="Foodpanda (#A12)"
+            android:textColor="#D81B60"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -28,11 +45,23 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="00:00"
-            android:textColor="#000000"
+            android:textColor="#111827"
             android:textSize="22sp"
             android:textStyle="bold" />
     </LinearLayout>
 
+    <!-- 店家名稱 (若有填寫) -->
+    <TextView
+        android:id="@+id/tvCardStore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="店家：麥當勞"
+        android:textColor="#4B5563"
+        android:textSize="13sp"
+        android:visibility="gone" />
+
+    <!-- 超時與總金額動態顯示 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -40,21 +69,37 @@
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/tvCardOvertime"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="狀態：正常送達中 (+ $0.0)"
-            android:textColor="#2E7D32"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvCardOvertime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="剩餘時間：11:00"
+                android:textColor="#15803D"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvCardTotalPay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="目前總收入: $45.0"
+                android:textColor="#111827"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/btnCompleteCard"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="#2E7D32"
+            android:backgroundTint="#15803D"
             android:text="結束/完成"
             android:textSize="14sp" />
     </LinearLayout>
