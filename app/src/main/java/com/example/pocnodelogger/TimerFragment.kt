@@ -36,59 +36,90 @@ class TimerFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val etAmount = view.findViewById<EditText>(R.id.etAmount)
+        val etStoreName = view.findViewById<EditText>(R.id.etStoreName)
+        val etOrderNo = view.findViewById<EditText>(R.id.etOrderNo)
         val tvBaseTimeHint = view.findViewById<TextView>(R.id.tvBaseTimeHint)
         val btnAddOrder = view.findViewById<Button>(R.id.btnAddOrder)
         val rgPlatform = view.findViewById<RadioGroup>(R.id.rgPlatform)
+        val rgSplitCount = view.findViewById<RadioGroup>(R.id.rgSplitCount)
         val rvActiveOrders = view.findViewById<RecyclerView>(R.id.rvActiveOrders)
 
-        // 初始化 RecyclerView 適配器
         adapter = ActiveOrdersAdapter(activeOrders) { item ->
             showCompletionDialog(item)
         }
         rvActiveOrders.layoutManager = LinearLayoutManager(requireContext())
         rvActiveOrders.adapter = adapter
 
-        // 輸入金額時動態即時計算時間底線
+        // 動態試算單張底線
         etAmount.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val amount = s.toString().toDoubleOrNull() ?: 45.0
-                val baseSec = (amount / 245.0 * 3600).toLong()
+                val splitCount = when (rgSplitCount.checkedRadioButtonId) {
+                    R.id.rbSplit2 -> 2
+                    R.id.rbSplit3 -> 3
+                    else -> 1
+                }
+                val perAmount = amount / splitCount
+                val baseSec = (perAmount / 245.0 * 3600).toLong()
                 val min = baseSec / 60
                 val sec = baseSec % 60
-                tvBaseTimeHint.text = String.format("法定時間底線：%d 分 %02d 秒", min, sec)
+                tvBaseTimeHint.text = String.format("每單底線：%d 分 %02d 秒 ($%.1f/單)", min, sec, perAmount)
             }
             override fun afterTextChanged(s: Editable?) {}
         })
 
-        // 按下「+ 開始接單」新增獨立計時卡片
         btnAddOrder.setOnClickListener {
-            val amount = etAmount.text.toString().toDoubleOrNull() ?: 45.0
-            val baseSec = (amount / 245.0 * 3600).toLong()
+            val totalAmount = etAmount.text.toString().toDoubleOrNull() ?: 45.0
+            val storeName = etStoreName.text.toString().trim()
+            val orderNo = etOrderNo.text.toString().trim()
 
-            val selectedPlatformId = rgPlatform.checkedRadioButtonId
-            val platform = when (selectedPlatformId) {
+            val splitCount = when (rgSplitCount.checkedRadioButtonId) {
+                R.id.rbSplit2 -> 2
+                R.id.rbSplit3 -> 3
+                else -> 1
+            }
+
+            val perAmount = totalAmount / splitCount
+            val baseSec = (perAmount / 245.0 * 3600).toLong()
+
+            val platform = when (rgPlatform.checkedRadioButtonId) {
                 R.id.rbUberEats -> "Uber Eats"
                 R.id.rbOther -> "其他"
                 else -> "Foodpanda"
             }
 
-            val newItem = ActiveOrderItem(
-                platform = platform,
-                estimatedAmount = amount,
-                baseTimeSeconds = baseSec,
-                startTimeMs = System.currentTimeMillis()
-            )
+            val groupId = if (splitCount > 1) "GRP_${System.currentTimeMillis()}" else ""
+            val nowMs = System.currentTimeMillis()
 
-            activeOrders.add(newItem)
-            adapter.notifyItemInserted(activeOrders.size - 1)
-            Toast.makeText(requireContext(), "已新增 $platform 計時訂單", Toast.LENGTH_SHORT).show()
+            for (i in 1..splitCount) {
+                val tag = if (splitCount > 1) "👥 夾單 $i/$splitCount" else ""
+                val itemOrderNo = if (splitCount > 1 && orderNo.isNotEmpty()) "$orderNo-#$i" else orderNo
+
+                val newItem = ActiveOrderItem(
+                    platform = platform,
+                    estimatedAmount = perAmount,
+                    baseTimeSeconds = baseSec,
+                    startTimeMs = nowMs,
+                    groupId = groupId,
+                    groupTag = tag,
+                    orderNo = itemOrderNo,
+                    storeName = storeName
+                )
+                activeOrders.add(newItem)
+            }
+
+            adapter.notifyDataSetChanged()
+            Toast.makeText(requireContext(), "已新增 $splitCount 筆訂單", Toast.LENGTH_SHORT).show()
+
+            // 清空選填輸入欄位
+            etStoreName.text.clear()
+            etOrderNo.text.clear()
         }
 
         startTimerLoop()
     }
 
-    // 每一秒驅動一次全卡片畫面刷新
     private fun startTimerLoop() {
         timerRunnable = object : Runnable {
             override fun run() {
@@ -101,20 +132,17 @@ class TimerFragment : Fragment() {
         handler.post(timerRunnable!!)
     }
 
-    // 跳出結束原因對話框
     private fun showCompletionDialog(item: ActiveOrderItem) {
         val reasons = arrayOf("正常配送", "不想接單", "實收", "其他原因")
         AlertDialog.Builder(requireContext())
             .setTitle("請選擇訂單結束原因")
             .setItems(reasons) { _, which ->
-                val selectedReason = reasons[which]
-                saveCompletedOrder(item, selectedReason)
+                saveCompletedOrder(item, reasons[which])
             }
             .setNegativeButton("取消", null)
             .show()
     }
 
-    // 儲存結算訂單至 Room 資料庫並從畫面移除卡片
     private fun saveCompletedOrder(item: ActiveOrderItem, reason: String) {
         val endTimeMs = System.currentTimeMillis()
         val durationSec = (endTimeMs - item.startTimeMs) / 1000
@@ -132,7 +160,10 @@ class TimerFragment : Fragment() {
             overtimeSeconds = overtimeSec,
             overtimePay = overtimePay,
             totalPay = totalPay,
-            completionReason = reason
+            completionReason = reason,
+            groupId = item.groupId,
+            orderNo = item.orderNo,
+            storeName = item.storeName
         )
 
         lifecycleScope.launch(Dispatchers.IO) {
