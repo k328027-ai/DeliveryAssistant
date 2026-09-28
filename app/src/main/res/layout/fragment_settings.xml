@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F3F4F6"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="⚙️ 平台與參數設定"
+        android:textColor="#111827"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="#FFFFFF"
+        android:elevation="2dp"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="預設平台管理"
+            android:textColor="#111827"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="預設提供 Foodpanda (桃紅) 與 Uber Eats (綠)。可在下方新增其他常用平台："
+            android:textColor="#6B7280"
+            android:textSize="13sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/etCustomPlatform"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="輸入平台名稱 (例: Lalamove)"
+                android:textSize="15sp" />
+
+            <Button
+                android:id="@+id/btnAddPlatform"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:backgroundTint="#3B82F6"
+                android:text="新增" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvPlatformList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="目前已有平台：Foodpanda, Uber Eats, 其他"
+            android:textColor="#374151"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+</LinearLayout>
