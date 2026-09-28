@@ -64,7 +64,7 @@ class TimerFragment : Fragment() {
                 val baseSec = (perAmount / 245.0 * 3600).toLong()
                 val min = baseSec / 60
                 val sec = baseSec % 60
-                tvBaseTimeHint.text = String.format("每單底線：%d 分 %02d 秒 ($%.1f/單)", min, sec, perAmount)
+                tvBaseTimeHint.text = String.format("每單底線：%d 分 %02d 秒 (\$%.1f/單)", min, sec, perAmount)
             }
             override fun afterTextChanged(s: Editable?) {}
         })
