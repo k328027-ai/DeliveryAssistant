@@ -93,24 +93,27 @@ class TimerFragment : Fragment() {
             val groupId = if (splitCount > 1) "GRP_${System.currentTimeMillis()}" else ""
             val nowMs = System.currentTimeMillis()
 
-            for (i in 1..splitCount) {
-                val tag = if (splitCount > 1) "👥 夾單 $i/$splitCount" else ""
-                val itemOrderNo = if (splitCount > 1 && orderNo.isNotEmpty()) "$orderNo-#$i" else orderNo
+            lifecycleScope.launch(Dispatchers.IO) {
+                val db = AppDatabase.getDatabase(requireContext())
+                for (i in 1..splitCount) {
+                    val tag = if (splitCount > 1) "👥 夾單 $i/$splitCount" else ""
+                    val itemOrderNo = if (splitCount > 1 && orderNo.isNotEmpty()) "$orderNo-#$i" else orderNo
 
-                val newItem = ActiveOrderItem(
-                    platform = platform,
-                    estimatedAmount = perAmount,
-                    baseTimeSeconds = baseSec,
-                    startTimeMs = nowMs,
-                    groupId = groupId,
-                    groupTag = tag,
-                    orderNo = itemOrderNo,
-                    storeName = storeName
-                )
-                activeOrders.add(newItem)
+                    val entity = ActiveOrderEntity(
+                        platform = platform,
+                        estimatedAmount = perAmount,
+                        baseTimeSeconds = baseSec,
+                        startTimeMs = nowMs,
+                        groupId = groupId,
+                        groupTag = tag,
+                        orderNo = itemOrderNo,
+                        storeName = storeName
+                    )
+                    db.activeOrderDao().insertActiveOrder(entity)
+                }
+                loadActiveOrdersFromDb()
             }
 
-            adapter.notifyDataSetChanged()
             Toast.makeText(requireContext(), "已新增 $splitCount 筆訂單", Toast.LENGTH_SHORT).show()
 
             // 清空選填輸入欄位
@@ -119,6 +122,36 @@ class TimerFragment : Fragment() {
         }
 
         startTimerLoop()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadActiveOrdersFromDb()
+    }
+
+    private fun loadActiveOrdersFromDb() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val dbList = AppDatabase.getDatabase(requireContext()).activeOrderDao().getAllActiveOrders()
+            withContext(Dispatchers.Main) {
+                activeOrders.clear()
+                dbList.forEach { entity ->
+                    activeOrders.add(
+                        ActiveOrderItem(
+                            id = entity.id,
+                            platform = entity.platform,
+                            estimatedAmount = entity.estimatedAmount,
+                            baseTimeSeconds = entity.baseTimeSeconds,
+                            startTimeMs = entity.startTimeMs,
+                            groupId = entity.groupId,
+                            groupTag = entity.groupTag,
+                            orderNo = entity.orderNo,
+                            storeName = entity.storeName
+                        )
+                    )
+                }
+                adapter.notifyDataSetChanged()
+            }
+        }
     }
 
     private fun startTimerLoop() {
@@ -168,13 +201,14 @@ class TimerFragment : Fragment() {
         )
 
         lifecycleScope.launch(Dispatchers.IO) {
-            AppDatabase.getDatabase(requireContext()).orderDao().insertOrder(orderEntity)
+            val db = AppDatabase.getDatabase(requireContext())
+            // 1. 寫入歷史紀錄
+            db.orderDao().insertOrder(orderEntity)
+            // 2. 從進行中列表刪除
+            db.activeOrderDao().deleteById(item.id)
+
             withContext(Dispatchers.Main) {
-                val index = activeOrders.indexOf(item)
-                if (index != -1) {
-                    activeOrders.removeAt(index)
-                    adapter.notifyItemRemoved(index)
-                }
+                loadActiveOrdersFromDb()
                 Toast.makeText(requireContext(), "已記錄訂單 ($reason)", Toast.LENGTH_SHORT).show()
             }
         }
