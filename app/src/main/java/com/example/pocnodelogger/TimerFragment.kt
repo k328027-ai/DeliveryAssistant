@@ -1,8 +1,12 @@
 package com.example.pocnodelogger
 
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -70,6 +74,7 @@ class TimerFragment : Fragment() {
             override fun afterTextChanged(s: Editable?) {}
         })
 
+        // 1. 新增訂單按鈕邏輯
         btnAddOrder.setOnClickListener {
             val totalAmount = etAmount.text.toString().toDoubleOrNull() ?: 45.0
             val storeName = etStoreName.text.toString().trim()
@@ -114,14 +119,35 @@ class TimerFragment : Fragment() {
                 loadActiveOrdersFromDb()
             }
 
+            // 新增訂單時自動啟動懸浮視窗檢查
+            checkAndStartOverlayService()
+
             Toast.makeText(requireContext(), "已新增 $splitCount 筆訂單", Toast.LENGTH_SHORT).show()
 
-            // 清空選填輸入欄位
             etStoreName.text.clear()
             etOrderNo.text.clear()
         }
 
         startTimerLoop()
+    }
+
+    // 2. 懸浮視窗啟動與權限檢查邏輯
+    private fun checkAndStartOverlayService() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(requireContext())) {
+            val intent = Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:${requireContext().packageName}")
+            )
+            startActivity(intent)
+            Toast.makeText(requireContext(), "請開啟「顯示在其他應用程式上層」權限以使用懸浮視窗", Toast.LENGTH_LONG).show()
+        } else {
+            val serviceIntent = Intent(requireContext(), OverlayService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                requireContext().startForegroundService(serviceIntent)
+            } else {
+                requireContext().startService(serviceIntent)
+            }
+        }
     }
 
     override fun onResume() {
@@ -202,9 +228,7 @@ class TimerFragment : Fragment() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             val db = AppDatabase.getDatabase(requireContext())
-            // 1. 寫入歷史紀錄
             db.orderDao().insertOrder(orderEntity)
-            // 2. 從進行中列表刪除
             db.activeOrderDao().deleteById(item.id)
 
             withContext(Dispatchers.Main) {
