@@ -53,10 +53,11 @@ class OverlayService : Service() {
             manager?.createNotificationChannel(channel)
         }
 
+        // 使用 Android 系統內建圖示，避免找不到 ic_launcher 報錯
         val notification: Notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle("跑單助手懸浮卡片執行中")
             .setContentText("正在外送 App 上方提供即時超時試算")
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
 
