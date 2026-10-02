@@ -56,7 +56,7 @@ class OverlayService : Service() {
         val notification: Notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle("跑單助手懸浮卡片執行中")
             .setContentText("正在外送 App 上方提供即時超時試算")
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
 
@@ -86,7 +86,6 @@ class OverlayService : Service() {
             y = 300
         }
 
-        // 手指拖曳移動邏輯
         val headerView = overlayView?.findViewById<View>(R.id.llHeader)
         headerView?.setOnTouchListener(object : View.OnTouchListener {
             private var initialX = 0
@@ -114,7 +113,6 @@ class OverlayService : Service() {
             }
         })
 
-        // 關閉按鈕
         overlayView?.findViewById<TextView>(R.id.btnCloseOverlay)?.setOnClickListener {
             stopSelf()
         }
