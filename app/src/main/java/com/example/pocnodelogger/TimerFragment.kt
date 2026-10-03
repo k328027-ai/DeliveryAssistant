@@ -119,8 +119,8 @@ class TimerFragment : Fragment() {
                 loadActiveOrdersFromDb()
             }
 
-            // 新增訂單時自動啟動懸浮視窗檢查
-            checkAndStartOverlayService()
+            // 新增訂單時自動啟動懸浮視窗檢查(暫時關閉)
+            // checkAndStartOverlayService()
 
             Toast.makeText(requireContext(), "已新增 $splitCount 筆訂單", Toast.LENGTH_SHORT).show()
 
